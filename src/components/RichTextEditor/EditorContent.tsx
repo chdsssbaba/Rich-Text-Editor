@@ -17,7 +17,7 @@ export const EditorContent: React.FC<EditorContentProps> = memo(({ onChange }) =
     onChangeRef.current = onChange;
   }, [onChange]);
 
-  // Throttled onChange callback to prevent excessive re-renders
+  // Handle accessibility and throttled onChange to prevent re-renders
   const throttledOnChange = useRef(
     throttle((content: string) => {
       onChangeRef.current?.(content);
