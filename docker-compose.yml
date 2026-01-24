@@ -1,0 +1,53 @@
+services:
+  # Frontend application service
+  rich-text-editor:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    image: rich-text-editor:latest
+    pull_policy: build
+    container_name: rich-text-editor-app
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+
+  # Development service (optional - for development with hot reload)
+  rich-text-editor-dev:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile.dev
+    image: rich-text-editor-dev:latest
+    pull_policy: build
+    container_name: rich-text-editor-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    profiles:
+      - dev
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+# To run production build:
+# docker-compose up --build
+
+# To run development build with hot reload:
+# docker-compose --profile dev up --build rich-text-editor-dev
